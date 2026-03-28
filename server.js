@@ -14,6 +14,23 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
+// Rota explícita para o dashboard principal
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Atalhos para as outras páginas
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'login.html'));
+});
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+console.log('Diretório atual:', __dirname);
+console.log('Pasta static:', path.join(__dirname));
+
 // Database setup
 const db = new sqlite3.Database('./database.sqlite', (err) => {
   if (err) {
