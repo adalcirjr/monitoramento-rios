@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - IEAA Admin</title>
+  <style>
+    :root {
+      --primary: #0277bd;
+      --bg: #f4f6f8;
+      --text: #333;
+      --white: #ffffff;
+      --error: #e53935;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .login-box {
+      background: var(--white);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 350px;
+      text-align: center;
+    }
+
+    .login-box img {
+      width: 70px;
+      margin-bottom: 15px;
+    }
+
+    .login-box h1 {
+      margin: 0;
+      font-size: 16px;
+      color: var(--primary);
+      text-transform: uppercase;
+    }
+
+    .login-box h2 {
+      margin: 5px 0 25px 0;
+      font-size: 12px;
+      color: #546e7a;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #cfd8dc;
+      border-radius: 8px;
+      font-size: 15px;
+      box-sizing: border-box;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(2, 119, 189, 0.1);
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #01579b;
+    }
+
+    .error-msg {
+      color: var(--error);
+      font-size: 13px;
+      margin-top: 15px;
+      display: none;
+      font-weight: bold;
+    }
+
+    .back-link {
+      display: block;
+      margin-top: 25px;
+      font-size: 13px;
+      color: #78909c;
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-box">
+    <img src="./logo.png" alt="Logo UFAM">
+    <h1>Administração</h1>
+    <h2>IEAA - Estatísticas Fluviais</h2>
+
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="Usuário" required />
+      <input type="password" id="password" placeholder="Senha" required />
+      <button type="submit">Entrar no Sistema</button>
+    </form>
+    
+    <div id="errorMsg" class="error-msg"></div>
+    <a href="index.html" class="back-link">← Voltar para a Página Inicial</a>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorMsg = document.getElementById('errorMsg');
+
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.token) {
+          errorMsg.style.display = 'none';
+          // Salva o crachá (token) na memória do navegador
+          localStorage.setItem('ieaa_admin_token', data.token);
+          // Redireciona para o admin
+          window.location.href = 'admin.html';
+        } else {
+          errorMsg.textContent = data.error || 'Autenticação falhou';
+          errorMsg.style.display = 'block';
+        }
+      } catch (err) {
+        errorMsg.textContent = 'Erro de conexão com o servidor';
+        errorMsg.style.display = 'block';
+      }
+    });
+  </script>
+
+</body>
+</html>

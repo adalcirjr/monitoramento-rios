@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - MadeiraPurus Stats</title>
+  <style>
+    :root {
+      --primary: #0277bd;
+      --secondary: #00838f;
+      --bg: #f4f6f8;
+      --text: #333;
+      --white: #ffffff;
+      --success: #43a047;
+      --error: #e53935;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .admin-container {
+      background: var(--white);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 650px;
+      margin: 40px 0;
+    }
+
+    h1 {
+      color: var(--primary);
+      text-align: center;
+      margin-top: 0;
+      font-size: 24px;
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: #78909c;
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: var(--secondary);
+    }
+
+    select,
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cfd8dc;
+      border-radius: 8px;
+      font-size: 16px;
+      box-sizing: border-box;
+      transition: border-color 0.3s;
+    }
+
+    select:focus,
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(2, 119, 189, 0.1);
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #01579b;
+    }
+
+    .message {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      display: none;
+      font-size: 14px;
+    }
+
+    .message.success {
+      background: #e8f5e9;
+      color: var(--success);
+      display: block;
+      border: 1px solid #c8e6c9;
+    }
+
+    .message.error {
+      background: #ffebee;
+      color: var(--error);
+      display: block;
+      border: 1px solid #ffcdd2;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 13px;
+    }
+    
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #eceff1;
+      text-align: center;
+    }
+    
+    th {
+      background: #f4f6f8;
+      color: var(--secondary);
+    }
+
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 12px;
+      border-radius: 5px;
+      margin-right: 5px;
+      margin-top: 0;
+      width: auto;
+      display: inline-block;
+    }
+
+    .btn-edit { background: #ffb300; color: #fff; }
+    .btn-edit:hover { background: #ff9800; }
+    
+    .btn-delete { background: var(--error); color: #fff; }
+    .btn-delete:hover { background: #c62828; }
+  </style>
+</head>
+
+<body>
+  <div class="admin-container">
+    <div style="text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eceff1;">
+      <img src="./logo.png" alt="Logo UFAM" style="width: 55px; height: auto; margin-bottom: 10px;">
+      <h2 style="margin: 0; font-size: 14px; color: var(--primary); text-transform: uppercase;">Universidade Federal do Amazonas</h2>
+      <h3 style="margin: 3px 0 0 0; font-size: 11px; color: #546e7a; font-weight: 600;">Instituto de Educação, Agricultura e Ambiente - IEAA</h3>
+    </div>
+
+    <h1>Painel de Controle</h1>
+    <p class="subtitle">Atualize o nível atual dos rios.</p>
+
+    <form id="adminForm">
+      <div class="form-group">
+        <label for="city">Selecionar Cidade / Rio:</label>
+        <select id="city" required>
+          <option value="Humaita">Humaitá (Rio Madeira)</option>
+          <option value="Labrea">Lábrea (Rio Purus)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="level">Nível da Água (centímetros):</label>
+        <input type="number" id="level" step="1" placeholder="Ex: 1542" required>
+      </div>
+
+      <button type="submit">Atualizar e Salvar Dados</button>
+    </form>
+
+    <div id="statusMessage" class="message"></div>
+    <div style="text-align: center; margin-top: 25px;">
+      <a href="index.html" class="back-link" style="display: inline-block; margin-right: 15px;">← App Público</a>
+      <a href="#" class="back-link" style="color: #e53935; display: inline-block;" onclick="logout()">Sair do Sistema</a>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid #eceff1; margin: 30px 0;">
+    <h2 style="color: var(--primary); font-size: 18px; text-align: center;">Histórico de Leituras</h2>
+    
+    <div style="overflow-x: auto;">
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Cidade</th>
+            <th>Nível (cm)</th>
+            <th>Data/Hora</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Carregado via JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // 1. Barreira de Segurança: Verifica se o cache possui o Token
+    const currentToken = localStorage.getItem('ieaa_admin_token');
+    if (!currentToken) {
+      alert("Acesso Negado! Por favor, faça login.");
+      // Expulsa o intruso de volta para o login
+      window.location.href = 'login.html';
+    }
+
+    // 2. Controle de Botão "Sair" (opcional para o usuário)
+    function logout() {
+      localStorage.removeItem('ieaa_admin_token');
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('adminForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const city = document.getElementById('city').value;
+      const level = parseFloat(document.getElementById('level').value) / 100;
+      const msgDiv = document.getElementById('statusMessage');
+
+      try {
+        const response = await fetch('/api/levels', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentToken}` // Aplicação do crachá do Admin
+          },
+          body: JSON.stringify({ city, level })
+        });
+
+        if (response.ok) {
+          msgDiv.className = 'message success';
+          msgDiv.textContent = '✅ Nível atualizado com sucesso!';
+          document.getElementById('level').value = ''; // limpa input
+          loadTable(); // Atualiza a tabela com o novo registro
+        } else {
+          const errorData = await response.json();
+          msgDiv.className = 'message error';
+          msgDiv.textContent = '❌ Erro: ' + (errorData.error || 'Falha ao salvar.');
+        }
+
+        // Esconde a mensagem depois de 4 segundos
+        setTimeout(() => {
+          msgDiv.className = 'message';
+          msgDiv.textContent = '';
+        }, 4000);
+
+      } catch (err) {
+        msgDiv.className = 'message error';
+        msgDiv.textContent = '❌ Erro: O servidor backend (API) não está rodando!';
+      }
+    });
+
+    // Funções de Gerenciamento da Tabela
+    async function loadTable() {
+      try {
+        const response = await fetch('/api/levels', {
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        const result = await response.json();
+        
+        const tbody = document.querySelector('#dataTable tbody');
+        tbody.innerHTML = '';
+        
+        if (result.data) {
+          result.data.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${row.id}</td>
+              <td style="font-weight:bold; color: #546e7a;">${row.city === 'Humaita' ? 'Humaitá' : 'Lábrea'}</td>
+              <td id="td-level-${row.id}">${(row.level * 100).toFixed(0)}</td>
+              <td style="font-size: 11px;">${row.created_at}</td>
+              <td style="min-width: 140px;">
+                 <button class="btn-sm btn-edit" onclick="editRow(${row.id}, ${(row.level * 100).toFixed(0)})">Editar</button>
+                 <button class="btn-sm btn-delete" onclick="deleteRow(${row.id})">Del</button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      } catch (err) { }
+    }
+
+    async function deleteRow(id) {
+      if(!confirm('Tem certeza absoluta que deseja excluir o registro ID: ' + id + '?')) return;
+      try {
+        await fetch('/api/levels/' + id, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        loadTable();
+      } catch(err) { alert('Erro na exclusão'); }
+    }
+
+    function editRow(id, currentLevel) {
+      const td = document.getElementById(`td-level-${id}`);
+      // Transforma a célula num mini formulário
+      td.innerHTML = `
+        <input type="number" id="input-level-${id}" value="${currentLevel}" step="1" style="width: 70px; padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; text-align: center;">
+        <button class="btn-sm" style="background:var(--success); color:#fff; display:block; margin: 4px auto 0 auto;" onclick="saveRow(${id})">Salvar</button>
+      `;
+    }
+
+    async function saveRow(id) {
+      const newLevel = document.getElementById(`input-level-${id}`).value;
+      if(!newLevel) return;
+      try {
+        await fetch('/api/levels/' + id, {
+          method: 'PUT',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentToken}` 
+          },
+          body: JSON.stringify({ level: parseFloat(newLevel) / 100 })
+        });
+        loadTable();
+      } catch(err) { alert('Erro ao salvar edição'); }
+    }
+
+    // Carrega a tabela assim que o painel abrir
+    loadTable();
+
+  </script>
+</body>
+
+</html>

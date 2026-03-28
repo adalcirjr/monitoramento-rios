@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MadeiraPurus Stats</title>
+  <style>
+    :root {
+      --primary: #0277bd;
+      --secondary: #00838f;
+      --bg: #f0f4f8;
+      --text: #263238;
+      --white: #ffffff;
+    }
+
+    body {
+      font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+        Arial, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 15px;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Cabeçalho UFAM */
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--white);
+      padding: 15px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .site-header img {
+      width: 50px;
+      height: auto;
+      margin-right: 15px;
+    }
+
+    .header-text {
+      text-align: left;
+    }
+
+    .header-text h1 {
+      margin: 0;
+      font-size: 15px;
+      color: var(--primary);
+      text-transform: uppercase;
+    }
+
+    .header-text h2 {
+      margin: 3px 0 0 0;
+      font-size: 12px;
+      color: #546e7a;
+      font-weight: 600;
+    }
+
+    /* Navegação entre Cidades */
+    .city-nav {
+      display: flex;
+      background: #cfd8dc;
+      padding: 5px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-item {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      color: #546e7a;
+      border: none;
+      background: none;
+    }
+
+    .nav-item.active {
+      background: var(--white);
+      color: var(--primary);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Card Principal */
+    .main-card {
+      background: var(--white);
+      border-radius: 25px;
+      padding: 25px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      text-align: center;
+    }
+
+    .river-name {
+      font-size: 12px;
+      font-weight: 800;
+      color: #90a4ae;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .city-title {
+      font-size: 24px;
+      font-weight: 800;
+      margin: 5px 0 20px 0;
+      color: var(--primary);
+    }
+
+    .level-display {
+      background: linear-gradient(135deg, #e1f5fe 0%, #ffffff 100%);
+      padding: 30px 10px;
+      border-radius: 20px;
+      margin-bottom: 25px;
+      border: 1px solid #b3e5fc;
+    }
+
+    .current-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--secondary);
+      text-transform: uppercase;
+    }
+
+    .level-value {
+      font-size: 56px;
+      font-weight: 900;
+      color: var(--primary);
+      display: block;
+      margin: 5px 0;
+    }
+
+    /* Grid de Estatísticas */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .stat-box {
+      background: #f8fafb;
+      padding: 15px;
+      border-radius: 18px;
+      border: 1px solid #eceff1;
+      transition: transform 0.2s;
+    }
+
+    .stat-box:active {
+      transform: scale(0.95);
+    }
+
+    .stat-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #78909c;
+      display: block;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .stat-val {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    /* Cores Específicas */
+    .color-max {
+      color: #d32f2f;
+    }
+
+    .color-min {
+      color: #f57c00;
+    }
+
+    .color-avg {
+      color: #1976d2;
+    }
+
+    .color-med {
+      color: #7b1fa2;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      font-weight: bold;
+      color: var(--primary);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="loader" class="loading-overlay">Sincronizando...</div>
+
+  <header class="site-header">
+    <img src="./logo.png" alt="Logo UFAM">
+    <div class="header-text">
+      <h1>Universidade Federal do Amazonas</h1>
+      <h2>Instituto de Educação, Agricultura e Ambiente - IEAA</h2>
+    </div>
+  </header>
+
+  <div class="city-nav">
+    <button id="btnHumaita" class="nav-item active" onclick="switchCity('Humaita')">
+      HUMAITÁ
+    </button>
+    <button id="btnLabrea" class="nav-item" onclick="switchCity('Labrea')">
+      LÁBREA
+    </button>
+  </div>
+
+  <div class="main-card">
+    <div id="river-label" class="river-name">Rio Madeira</div>
+    <div id="city-label" class="city-title">Humaitá / AM</div>
+
+    <div class="level-display">
+      <span class="current-label">Nível em Tempo Real</span>
+      <span id="lvl" class="level-value">----cm</span>
+      <div id="last-update" style="font-size: 11px; color: #78909c; font-weight: bold; margin-top: 10px;">Atualizado em: --</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <span class="stat-label">Máx. de Hoje</span>
+        <span id="max-day" class="stat-val color-max">----cm</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Mín. de Hoje</span>
+        <span id="min-day" class="stat-val color-min">----cm</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Máx. da Semana</span>
+        <span id="max-week" class="stat-val color-max">----cm</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Mín. da Semana</span>
+        <span id="min-week" class="stat-val color-min">----cm</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Máx. do Mês</span>
+        <span id="max-month" class="stat-val color-max">----cm</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Mín. do Mês</span>
+        <span id="min-month" class="stat-val color-min">----cm</span>
+      </div>
+    </div>
+
+    <!-- Gráfico de Tendência 30 Dias -->
+    <div style="margin-top: 25px; background: #f8fafb; border-radius: 18px; border: 1px solid #eceff1; padding: 20px 10px 10px 10px;">
+      <div style="font-size: 12px; font-weight: 800; color: #90a4ae; text-transform: uppercase; letter-spacing: 1.5px; text-align: center; margin-bottom: 15px;">
+        Tendência 30 Dias
+      </div>
+      <div id="chart-container" style="position: relative; width: 100%; overflow: hidden;">
+        <canvas id="trendChart"></canvas>
+        <div id="chart-tooltip" style="display:none; position:absolute; background:rgba(38,50,56,0.92); color:#fff; padding:8px 14px; border-radius:10px; font-size:12px; font-weight:700; pointer-events:none; white-space:nowrap; box-shadow:0 4px 12px rgba(0,0,0,0.2); z-index:10;"></div>
+        <div id="chart-empty" style="display:none; text-align:center; padding:40px 10px; color:#90a4ae; font-size:13px; font-weight:600;">
+          Sem dados suficientes para exibir o gráfico.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rodapé com Créditos -->
+  <div style="text-align:center; margin-top:25px; padding:20px 15px; background:#fff; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.05);">
+    <div style="font-size:10px; font-weight:700; color:#90a4ae; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px;">Desenvolvido por</div>
+    <div style="font-size:15px; font-weight:800; color:#263238;">Prof. Adalcir Araújo Feitosa Júnior</div>
+    <div style="font-size:12px; color:#546e7a; font-weight:600; margin-top:4px;">Universidade Federal do Amazonas — IEAA</div>
+    <div style="margin-top:15px; padding-top:12px; border-top:1px solid #eceff1;">
+      <a href="login.html" style="font-size:11px; color:#90a4ae; text-decoration:none; font-weight:600;">🔒 Área Administrativa</a>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = window.location.origin + '/api/levels';
+
+    const cityData = {
+      Humaita: { labelCity: 'Humaitá / AM', labelRiver: 'Rio Madeira' },
+      Labrea: { labelCity: 'Lábrea / AM', labelRiver: 'Rio Purus' }
+    };
+
+    // ─── GRÁFICO DE BARRAS CANVAS (LEVE) ───
+    let chartData = [];
+
+    function drawChart(data) {
+      const container = document.getElementById('chart-container');
+      const canvas = document.getElementById('trendChart');
+      const emptyMsg = document.getElementById('chart-empty');
+      const ctx = canvas.getContext('2d');
+
+      if (!data || data.length === 0) {
+        canvas.style.display = 'none';
+        emptyMsg.style.display = 'block';
+        return;
+      }
+      canvas.style.display = 'block';
+      emptyMsg.style.display = 'none';
+      chartData = data;
+
+      // Dimensões responsivas
+      const dpr = window.devicePixelRatio || 1;
+      const containerWidth = container.clientWidth;
+      const canvasHeight = 220;
+      canvas.width = containerWidth * dpr;
+      canvas.height = canvasHeight * dpr;
+      canvas.style.width = containerWidth + 'px';
+      canvas.style.height = canvasHeight + 'px';
+      ctx.scale(dpr, dpr);
+
+      // Áreas internas
+      const padLeft = 55, padRight = 10, padTop = 15, padBottom = 40;
+      const chartW = containerWidth - padLeft - padRight;
+      const chartH = canvasHeight - padTop - padBottom;
+
+      // Limpa
+      ctx.clearRect(0, 0, containerWidth, canvasHeight);
+
+      // Calcula limites (converte m → cm)
+      const levels = data.map(d => d.avg_level * 100);
+      const maxVal = Math.ceil(Math.max(...levels) / 10) * 10 + 10;
+      const minVal = Math.max(0, Math.floor(Math.min(...levels) / 10) * 10 - 10);
+      const range = maxVal - minVal || 1;
+
+      // Linhas guia horizontais
+      const numLines = 5;
+      ctx.strokeStyle = '#e0e4e8';
+      ctx.lineWidth = 0.8;
+      ctx.fillStyle = '#90a4ae';
+      ctx.font = '10px -apple-system, sans-serif';
+      ctx.textAlign = 'right';
+
+      for (let i = 0; i <= numLines; i++) {
+        const val = minVal + (range * i / numLines);
+        const y = padTop + chartH - (chartH * i / numLines);
+        ctx.beginPath();
+        ctx.setLineDash([4, 3]);
+        ctx.moveTo(padLeft, y);
+        ctx.lineTo(padLeft + chartW, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillText(Math.round(val) + 'cm', padLeft - 5, y + 3);
+      }
+
+      // Barras
+      const barGap = 3;
+      const barW = Math.max(4, (chartW - barGap * (data.length + 1)) / data.length);
+      const totalBarsW = data.length * barW + (data.length - 1) * barGap;
+      const offsetX = padLeft + (chartW - totalBarsW) / 2;
+
+      // Gradiente para as barras
+      const gradTop = ctx.createLinearGradient(0, padTop, 0, padTop + chartH);
+      gradTop.addColorStop(0, '#0288d1');
+      gradTop.addColorStop(1, '#4fc3f7');
+
+      data.forEach((d, i) => {
+        const x = offsetX + i * (barW + barGap);
+        const levelCm = d.avg_level * 100;
+        const barH = ((levelCm - minVal) / range) * chartH;
+        const y = padTop + chartH - barH;
+
+        // Barra com bordas arredondadas (topo)
+        const radius = Math.min(barW / 2, 4);
+        ctx.fillStyle = gradTop;
+        ctx.beginPath();
+        ctx.moveTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.lineTo(x + barW - radius, y);
+        ctx.quadraticCurveTo(x + barW, y, x + barW, y + radius);
+        ctx.lineTo(x + barW, padTop + chartH);
+        ctx.lineTo(x, padTop + chartH);
+        ctx.closePath();
+        ctx.fill();
+
+        // Label do dia no eixo X (a cada N barras para não poluir)
+        const showEvery = data.length > 15 ? Math.ceil(data.length / 8) : 1;
+        if (i % showEvery === 0 || i === data.length - 1) {
+          const dayLabel = d.day.slice(5); // 'MM-DD'
+          const [mm, dd] = dayLabel.split('-');
+          ctx.fillStyle = '#78909c';
+          ctx.font = '9px -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.save();
+          ctx.translate(x + barW / 2, padTop + chartH + 12);
+          ctx.rotate(-0.5);
+          ctx.fillText(`${dd}/${mm}`, 0, 0);
+          ctx.restore();
+        }
+      });
+
+
+    }
+
+    // Tooltip interativo
+    function setupChartTooltip() {
+      const canvas = document.getElementById('trendChart');
+      const tooltip = document.getElementById('chart-tooltip');
+      const container = document.getElementById('chart-container');
+
+      function getBarIndex(evt) {
+        const rect = canvas.getBoundingClientRect();
+        const x = evt.clientX - rect.left;
+        if (!chartData.length) return -1;
+
+        const containerWidth = container.clientWidth;
+        const padLeft = 55, padRight = 10;
+        const chartW = containerWidth - padLeft - padRight;
+        const barGap = 3;
+        const barW = Math.max(4, (chartW - barGap * (chartData.length + 1)) / chartData.length);
+        const totalBarsW = chartData.length * barW + (chartData.length - 1) * barGap;
+        const offsetX = padLeft + (chartW - totalBarsW) / 2;
+
+        for (let i = 0; i < chartData.length; i++) {
+          const bx = offsetX + i * (barW + barGap);
+          if (x >= bx && x <= bx + barW) return i;
+        }
+        return -1;
+      }
+
+      function showTooltip(evt) {
+        const idx = getBarIndex(evt);
+        if (idx < 0) { tooltip.style.display = 'none'; return; }
+
+        const d = chartData[idx];
+        const [yyyy, mm, dd] = d.day.split('-');
+        tooltip.innerHTML = `📅 ${dd}/${mm}/${yyyy}<br>💧 ${(d.avg_level * 100).toFixed(0)}cm`;
+        tooltip.style.display = 'block';
+
+        const rect = canvas.getBoundingClientRect();
+        const cRect = container.getBoundingClientRect();
+        let tx = evt.clientX - cRect.left + 12;
+        let ty = evt.clientY - cRect.top - 40;
+        // Evita sair pela direita
+        if (tx + tooltip.offsetWidth > container.clientWidth) tx = tx - tooltip.offsetWidth - 24;
+        if (ty < 0) ty = 5;
+
+        tooltip.style.left = tx + 'px';
+        tooltip.style.top = ty + 'px';
+      }
+
+      canvas.addEventListener('mousemove', showTooltip);
+      canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        showTooltip(e.touches[0]);
+      }, { passive: false });
+      canvas.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+      canvas.addEventListener('touchend', () => { tooltip.style.display = 'none'; });
+    }
+
+    // Redesenha quando a janela muda de tamanho
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => { if (chartData.length) drawChart(chartData); }, 200);
+    });
+
+    // ─── LÓGICA PRINCIPAL ───
+    async function switchCity(cityId) {
+      // Atualiza botões
+      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('btn' + cityId).classList.add('active');
+
+      // Atualiza labels
+      document.getElementById('city-label').textContent = cityData[cityId].labelCity;
+      document.getElementById('river-label').textContent = cityData[cityId].labelRiver;
+
+      // Reseta e mostra loader
+      const lvlLabel = document.getElementById('lvl');
+      const lastUpdateLabel = document.getElementById('last-update');
+      const loader = document.getElementById('loader');
+      lvlLabel.textContent = '----cm';
+      lastUpdateLabel.textContent = 'Atualizado em: --';
+      loader.style.display = 'flex';
+
+      // Limpa gráfico anterior
+      drawChart([]);
+
+      try {
+        const [response, statsResponse, historyResponse] = await Promise.all([
+          fetch(`${API_URL}/${cityId}`),
+          fetch(`${API_URL}/${cityId}/stats`),
+          fetch(`${API_URL}/${cityId}/history`)
+        ]);
+
+        // Nível atual
+        if (!response.ok) throw new Error('Sem dados salvos');
+        const resJson = await response.json();
+
+        if (resJson.data && resJson.data.level) {
+          lvlLabel.textContent = (parseFloat(resJson.data.level) * 100).toFixed(0) + 'cm';
+
+          if (resJson.data.created_at) {
+            const [datePart, timePart] = resJson.data.created_at.split(' ');
+            if (datePart && timePart) {
+              const [yyyy, mm, dd] = datePart.split('-');
+              const [hh, min] = timePart.split(':');
+              lastUpdateLabel.textContent = `Atualizado em: ${dd}/${mm}/${yyyy} às ${hh}:${min}`;
+            } else {
+              lastUpdateLabel.textContent = `Atualizado em: ${resJson.data.created_at}`;
+            }
+          }
+        }
+
+        // Estatísticas Min/Max
+        if (statsResponse.ok) {
+          const statsJson = await statsResponse.json();
+          const s = statsJson.data;
+          const fmt = (val) => val !== null && val !== undefined ? (parseFloat(val) * 100).toFixed(0) + 'cm' : '----cm';
+          document.getElementById('max-day').textContent = fmt(s.max_day);
+          document.getElementById('min-day').textContent = fmt(s.min_day);
+          document.getElementById('max-week').textContent = fmt(s.max_week);
+          document.getElementById('min-week').textContent = fmt(s.min_week);
+          document.getElementById('max-month').textContent = fmt(s.max_month);
+          document.getElementById('min-month').textContent = fmt(s.min_month);
+        }
+
+        // Gráfico de 30 dias
+        if (historyResponse.ok) {
+          const historyJson = await historyResponse.json();
+          if (historyJson.data && historyJson.data.length > 0) {
+            drawChart(historyJson.data);
+          }
+        }
+
+      } catch (error) {
+        console.error('Erro:', error);
+        lvlLabel.textContent = 'Erro';
+      } finally {
+        loader.style.display = 'none';
+      }
+    }
+
+    // Inicializa
+    document.addEventListener("DOMContentLoaded", () => {
+      setupChartTooltip();
+      switchCity('Humaita');
+    });
+  </script>
+</body>
+
+</html>
